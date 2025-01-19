@@ -13,3 +13,4 @@ pydantic==2.10.5
 replicate==1.0.4
 Requests==2.32.3
 srt==3.5.3
+gunicorn==20.1.0
