@@ -4,7 +4,7 @@ import random
 import uuid
 
 import upscaler
-import IG_Upload
+#import IG_Upload
 import LLM
 import voiceAI
 import build2gether
@@ -12,8 +12,8 @@ import img2vid
 import add_subtitles
 
 
-def instagram_upload(video_path, description, account_cookies_pkl):
-    IG_Upload.main(video_path, description, account_cookies_pkl)
+#def instagram_upload(video_path, description, account_cookies_pkl):
+#    IG_Upload.main(video_path, description, account_cookies_pkl)
 
 
 def get_raw_data():
