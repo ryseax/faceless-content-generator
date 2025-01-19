@@ -1,0 +1,15 @@
+elevenlabs==1.50.3
+fake_useragent==2.0.3
+faster_whisper==1.1.1
+Flask==3.1.0
+flask_cors==5.0.0
+flask_talisman==1.1.0
+moviepy==1.0.3
+mutagen==1.47.0
+numpy==2.2.2
+openai==1.59.8
+Pillow==10.0.0
+pydantic==2.10.5
+replicate==1.0.4
+Requests==2.32.3
+srt==3.5.3

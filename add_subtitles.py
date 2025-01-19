@@ -43,7 +43,7 @@ def transcribe_to_srt(audio_path, srt_path, model_size="base"):
         srt_file.write(srt.compose(subtitle_entries))
 
 
-watermarc_png_path = "Download.png"
+watermarc_png_path = "PLACEHOLDER_WATERMARK.png"
 
 
 def add_subtitles_to_video(video_path, srt_path, output_path, plan):

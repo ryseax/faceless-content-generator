@@ -129,5 +129,10 @@ def generate_video():
         print(e)
         return jsonify({"error": str(e)}), 500
 
+@app.route('/')
+def index():
+    return "Server is running"
+
+
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=False)
