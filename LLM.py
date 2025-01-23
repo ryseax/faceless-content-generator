@@ -1,5 +1,6 @@
+import openai
 from openai import OpenAI
-
+openai.api_key = "PLACEHOLDER_API_KEY"
 client = OpenAI()
 
 

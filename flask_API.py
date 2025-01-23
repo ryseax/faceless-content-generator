@@ -1,38 +1,39 @@
 import os
 from flask import Flask, request, jsonify, send_from_directory, url_for
-from flask import Flask, request, jsonify, send_file
-from pydantic import BaseModel, Field, ValidationError
-
+from pydantic import BaseModel, Field
 import KEYS
 import main
 from flask_cors import CORS
-from flask_talisman import Talisman
+
 
 class VideoRequest(BaseModel):
     user_id: str
     model_used: str
     user_prompt: str
     video_len: str
-    athmosphere: str = Field(default="according to the prompt")
+    athmosphere: str = Field(default="")
     visual_style: str = Field(default="")
     music_style: str = Field(default="")
 
+
 app = Flask(__name__)
 
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": r"https://.*\.facelessai\.studio"}})
 app.config['PREFERRED_URL_SCHEME'] = 'https'  # HTTPS erzwingen
-
 DOMAIN = KEYS.DOMAIN  # Deine Ngrok-Domain
+
 
 def get_folder_path_from_user(user_id):
     return f"./generated_vids/{user_id}"  # Relativer Pfad zu den Benutzerordnern
 
-def generate_ngrok_url(endpoint, **values):
+
+def generate_endpoint_url(endpoint, **values):
     """
     Erzeugt eine vollständige URL basierend auf der Ngrok-Domain.
     """
     ngrok_url = f"https://{DOMAIN}{url_for(endpoint, **values)}"
     return ngrok_url
+
 
 @app.route("/get-user-videos", methods=["POST"])
 def get_user_videos():
@@ -67,7 +68,7 @@ def get_user_videos():
 
         # Generiere URLs für die Videos direkt aus der Route
         video_urls = [
-            generate_ngrok_url('serve_user_video', user_id=user_id, filename=file)
+            generate_endpoint_url('serve_user_video', user_id=user_id, filename=file)
             for file in mp4_files
         ]
         print(video_urls)
@@ -76,6 +77,7 @@ def get_user_videos():
     except Exception as e:
         print(e)
         return jsonify({"error": str(e)}), 500
+
 
 @app.route("/get-user-videos/<user_id>/<filename>")
 def serve_user_video(user_id, filename):
@@ -92,6 +94,8 @@ def serve_user_video(user_id, filename):
     except Exception as e:
         print(e)
         return jsonify({"error": str(e)}), 500
+
+
 @app.route('/generate-video', methods=['POST'])
 def generate_video():
     try:
@@ -128,6 +132,7 @@ def generate_video():
     except Exception as e:
         print(e)
         return jsonify({"error": str(e)}), 500
+
 
 @app.route('/')
 def index():

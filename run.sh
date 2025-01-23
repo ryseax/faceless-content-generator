@@ -1,0 +1,1 @@
+gunicorn -b :5000 flask_API:app
