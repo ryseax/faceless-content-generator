@@ -19,7 +19,7 @@ class VideoRequest(BaseModel):
 
 app = Flask(__name__)
 
-CORS(app, resources={r"/*": {"origins": r"https://facelesssai.studio"}})
+CORS(app, resources={r"/*": {"origins": ["https://facelessai.studio", "https://bolt.new"]}})
 app.config['PREFERRED_URL_SCHEME'] = 'https'  # HTTPS erzwingen
 DOMAIN = KEYS.DOMAIN  # Deine Ngrok-Domain
 
@@ -29,9 +29,6 @@ def get_folder_path_from_user(user_id):
 
 
 def generate_endpoint_url(endpoint, **values):
-    """
-    Erzeugt eine vollständige URL basierend auf der Ngrok-Domain.
-    """
     ngrok_url = f"https://{DOMAIN}{url_for(endpoint, **values)}"
     return ngrok_url
 

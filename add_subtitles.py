@@ -97,8 +97,6 @@ def add_subtitles_to_video(video_path, srt_path, output_path, plan):
             "-movflags", "faststart",
             output_path
         ]
-        # Zum Debuggen kannst du stdout und stderr abgreifen:
-        subprocess.run(command, capture_output=True, text=True)
 
     else:
         command = [
@@ -116,7 +114,7 @@ def add_subtitles_to_video(video_path, srt_path, output_path, plan):
             output_path  # Output video
         ]
 
-    subprocess.run(command, check=True)
+    subprocess.run(command, capture_output=True, text=True)
 
 
 def add_subs_to_mp4(audio_path, srt_path, video_path, output_path, plan):

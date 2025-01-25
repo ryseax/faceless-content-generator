@@ -211,6 +211,6 @@ def create_reel(model_used, user_prompt, video_len, user_id, athmosphere, visual
 
 
 if __name__ == '__main__':
-    create_reel("Tesster", "Create a reel about motivation to get rich and be the best version yourself, just 5s ", "5", "2520", "motivation, inspiring",
+    create_reel("Tester", "Create a reel about motivation to get rich and be the best version yourself, just 5s ", "5", "2520", "motivation, inspiring",
                 "realisitc", "")
 
