@@ -25,7 +25,7 @@ DOMAIN = KEYS.DOMAIN  # Deine Ngrok-Domain
 
 
 def get_folder_path_from_user(user_id):
-    return f"/generated_vids/{user_id}"  # Relativer Pfad zu den Benutzerordnern
+    return os.getcwd() + f"/generated_vids/{user_id}"  # Relativer Pfad zu den Benutzerordnern
 
 
 def generate_endpoint_url(endpoint, **values):
@@ -122,7 +122,7 @@ def generate_video():
             video_request = VideoRequest(**data)
 
             print(video_request)
-            main.create_reel(
+            output_path = main.create_reel(
                 model_used=video_request.model_used,
                 user_prompt=video_request.user_prompt,
                 video_len=video_request.video_len,
@@ -135,7 +135,7 @@ def generate_video():
 
         except Exception as e:
             attempt += 1  # Zähler erhöhen
-            main.del_all_except_finished(f"generated_vids/{video_request.user_id}")
+            main.del_all_except_finished(get_folder_path_from_user(video_request.user_id))
             print(f"Attempt {attempt} failed: {e}")
             if attempt == MAX_RETRIES:
                 # Nach 5 Versuchen den Fehler zurückgeben
