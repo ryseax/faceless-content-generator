@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 import KEYS
 import main
 from flask_cors import CORS
+import main
 
 
 class VideoRequest(BaseModel):
@@ -18,13 +19,13 @@ class VideoRequest(BaseModel):
 
 app = Flask(__name__)
 
-CORS(app, resources={r"/*": {"origins": r"https://.*\.facelessai\.studio"}})
+CORS(app, resources={r"/*": {"origins": r"https://facelesssai.studio"}})
 app.config['PREFERRED_URL_SCHEME'] = 'https'  # HTTPS erzwingen
 DOMAIN = KEYS.DOMAIN  # Deine Ngrok-Domain
 
 
 def get_folder_path_from_user(user_id):
-    return f"./generated_vids/{user_id}"  # Relativer Pfad zu den Benutzerordnern
+    return f"/generated_vids/{user_id}"  # Relativer Pfad zu den Benutzerordnern
 
 
 def generate_endpoint_url(endpoint, **values):
@@ -98,40 +99,47 @@ def serve_user_video(user_id, filename):
 
 @app.route('/generate-video', methods=['POST'])
 def generate_video():
-    try:
-        # JSON-Daten vom Client
-        data = request.json
-        if not data:
-            return jsonify({"error": "No JSON data received"}), 400
+    MAX_RETRIES = 5  # Maximale Anzahl der Wiederholungen
+    attempt = 0  # Zähler für die Versuche
+    while attempt < MAX_RETRIES:
+        try:
+            # JSON-Daten vom Client
+            data = request.json
+            if not data:
+                attempt = MAX_RETRIES
+                return jsonify({"error": "No JSON data received"}), 400
 
-        example_req = {
-            "user_id": "65485",
-            "model_used": "1",
-            "user_prompt": "Create a cat reel",
-            "video_len": "20",
-            # optionale:
-            "athmosphere": "inspiring",  # ""
-            "visual_style": "realisitc",  # ""
-            "music_style": "lofi",  # ""
-        }
-        video_request = VideoRequest(**data)
+            example_req = {
+                "user_id": "65485",
+                "model_used": "1",
+                "user_prompt": "Create a cat reel",
+                "video_len": "20",
+                # optionale:
+                "athmosphere": "inspiring",  # ""
+                "visual_style": "realisitc",  # ""
+                "music_style": "lofi",  # ""
+            }
+            video_request = VideoRequest(**data)
 
-        print(data, video_request)
-        # Beispielhafte Logik zur Videogenerierung (Dummy-Datei für Demo)
-        output_video_path = main.create_reel(
-            model_used=video_request.model_used,
-            user_prompt=video_request.user_prompt,
-            video_len=video_request.video_len,
-            user_id=video_request.user_id,
-            athmosphere=f"Athmosphere: {video_request.athmosphere}",  # optional
-            music_style=video_request.music_style,  # optional
-            visual_style=video_request.visual_style,  # optional
-        )
-        return "Success", 200
+            print(video_request)
+            main.create_reel(
+                model_used=video_request.model_used,
+                user_prompt=video_request.user_prompt,
+                video_len=video_request.video_len,
+                user_id=video_request.user_id,
+                athmosphere=f"Athmosphere: {video_request.athmosphere}",  # optional
+                music_style=video_request.music_style,  # optional
+                visual_style=video_request.visual_style,  # optional
+            )
+            return "Success", 200  # Erfolgreich abgeschlossen, beenden
 
-    except Exception as e:
-        print(e)
-        return jsonify({"error": str(e)}), 500
+        except Exception as e:
+            attempt += 1  # Zähler erhöhen
+            main.del_all_except_finished(f"generated_vids/{video_request.user_id}")
+            print(f"Attempt {attempt} failed: {e}")
+            if attempt == MAX_RETRIES:
+                # Nach 5 Versuchen den Fehler zurückgeben
+                return jsonify({"error": f"Failed after {MAX_RETRIES} attempts: {str(e)}"}), 500
 
 
 @app.route('/')

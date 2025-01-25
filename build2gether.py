@@ -21,11 +21,13 @@ def merge_videos_with_audio(file_list_path, audio_path, output_path):
     Merges multiple MP4 files into a single video and overlays an MP3 audio track.
 
     Args:
-        file_list_path (str): Path to the text file listing video files to merge.
+        file_list_path (str): Path to the text file listing video files to mer
+        ge.
         audio_path (str): Path to the MP3 file for background audio.
         output_path (str): Path to save the merged output video.
     """
     # Concatenate video files
+    print(file_list_path)
     concat_command = [
         'ffmpeg',
         '-f', 'concat',
@@ -59,6 +61,5 @@ def merge_all(mp4_files, file_list_path, audio_script_path, output_path):
     #file_list_path = "file_list.txt"
     create_file_list(mp4_files, file_list_path)
     merge_videos_with_audio(file_list_path, audio_script_path, output_path)
-    os.remove(file_list_path)
 
 

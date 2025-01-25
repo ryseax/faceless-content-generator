@@ -177,7 +177,7 @@ def create_reel(model_used, user_prompt, video_len, user_id, athmosphere, visual
         img_gen_model = "flux"
         watermarc = "imgpath to watermark"
 
-    user_dir = f"generated_vids/{user_id}"
+    user_dir = os.getcwd() + f"\\generated_vids\\{user_id}"
     if not os.path.exists(user_dir):
         os.makedirs(user_dir)
     output_path = pm(user_dir, f"FINISHED{uuid.uuid4().hex[:10]}", ".mp4")  # userId
@@ -211,6 +211,6 @@ def create_reel(model_used, user_prompt, video_len, user_id, athmosphere, visual
 
 
 if __name__ == '__main__':
-    create_reel("Tester", "Create a reel about motivation to get rich and be the best version yourself, just 5s ", "5", "2520", "motivation, inspiring",
+    create_reel("Tesster", "Create a reel about motivation to get rich and be the best version yourself, just 5s ", "5", "2520", "motivation, inspiring",
                 "realisitc", "")
 

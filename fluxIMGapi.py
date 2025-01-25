@@ -37,7 +37,7 @@ def create_image(prompt, dirname, filename, model="flux"):
             print(f"Error: {img_byte_res}")
             time.sleep(5)
             img_byte_res = image_byte_response(prompt + " - image quality 720p")
-
+        print(img_byte_res)
         image = Image.open(io.BytesIO(img_byte_res))
         image.save(os.path.join(dirname, filename))
     else:
