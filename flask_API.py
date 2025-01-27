@@ -1,4 +1,5 @@
 import os
+import time
 import traceback
 
 from flask import Flask, request, jsonify, send_from_directory, url_for
@@ -7,6 +8,7 @@ import KEYS
 import main
 from flask_cors import CORS
 import main
+from main import write_genfile
 
 
 class VideoRequest(BaseModel):
@@ -72,7 +74,7 @@ def get_user_videos():
             for file in mp4_files
         ]
         print(video_urls)
-        return jsonify({"video_urls": video_urls}), 200
+        return jsonify({"video_urls": list(reversed(video_urls))}), 200
 
     except Exception as e:
         print(e)
@@ -95,6 +97,7 @@ def serve_user_video(user_id, filename):
         print(e)
         return jsonify({"error": str(e)}), 500
 
+
 @app.route('/check-video-status', methods=['POST'])
 def check_video_status():
     if not request.is_json:
@@ -113,7 +116,10 @@ def check_video_status():
         return jsonify({"status": "error"}), 500
     if main.get_genfile_content(filepath) == "generating":
         return jsonify({"status": "generating"}), 200
+    if main.get_genfile_content(filepath) == "no video in pipeline":
+        return jsonify({"status": "no video in pipeline"}), 200
     return jsonify({"status": "success"}), 200
+
 
 @app.route('/generate-video', methods=['POST'])
 def generate_video():
@@ -149,6 +155,8 @@ def generate_video():
                 music_style=video_request.music_style,  # optional
                 visual_style=video_request.visual_style,  # optional
             )
+            time.sleep(6)
+            main.write_genfile(get_folder_path_from_user(video_request.user_id), "no video in pipeline")
             return "Success", 200  # Erfolgreich abgeschlossen, beenden
 
         except Exception as e:
