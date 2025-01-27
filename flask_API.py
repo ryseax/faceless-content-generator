@@ -1,4 +1,6 @@
 import os
+import traceback
+
 from flask import Flask, request, jsonify, send_from_directory, url_for
 from pydantic import BaseModel, Field
 import KEYS
@@ -93,10 +95,29 @@ def serve_user_video(user_id, filename):
         print(e)
         return jsonify({"error": str(e)}), 500
 
+@app.route('/check-video-status', methods=['POST'])
+def check_video_status():
+    if not request.is_json:
+        return jsonify({"error": "Content-Type must be application/json"}), 415
+
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No JSON data received"}), 400
+
+    user_id = str(data.get("user_id"))  # Erwartet ein "user_id"-Key im JSON
+    if not user_id:
+        return jsonify({"error": "User ID is required"}), 400
+
+    filepath = f"{get_folder_path_from_user(user_id)}/generating.txt"
+    if main.get_genfile_content(filepath) == "error":
+        return jsonify({"status": "error"}), 500
+    if main.get_genfile_content(filepath) == "generating":
+        return jsonify({"status": "generating"}), 200
+    return jsonify({"status": "success"}), 200
 
 @app.route('/generate-video', methods=['POST'])
 def generate_video():
-    MAX_RETRIES = 5  # Maximale Anzahl der Wiederholungen
+    MAX_RETRIES = 3  # Maximale Anzahl der Wiederholungen
     attempt = 0  # Zähler für die Versuche
     while attempt < MAX_RETRIES:
         try:
@@ -131,11 +152,13 @@ def generate_video():
             return "Success", 200  # Erfolgreich abgeschlossen, beenden
 
         except Exception as e:
+            traceback.print_exc()
             attempt += 1  # Zähler erhöhen
-            main.del_all_except_finished(get_folder_path_from_user(video_request.user_id))
+            main.del_all_except_finished_and_generatingfile(get_folder_path_from_user(video_request.user_id))
             print(f"Attempt {attempt} failed: {e}")
             if attempt == MAX_RETRIES:
                 # Nach 5 Versuchen den Fehler zurückgeben
+                main.write_genfile(get_folder_path_from_user(video_request.user_id), "error")
                 return jsonify({"error": f"Failed after {MAX_RETRIES} attempts: {str(e)}"}), 500
 
 

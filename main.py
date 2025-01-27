@@ -4,7 +4,7 @@ import random
 import uuid
 
 import upscaler
-#import IG_Upload
+# import IG_Upload
 import LLM
 import voiceAI
 import build2gether
@@ -12,7 +12,7 @@ import img2vid
 import add_subtitles
 
 
-#def instagram_upload(video_path, description, account_cookies_pkl):
+# def instagram_upload(video_path, description, account_cookies_pkl):
 #    IG_Upload.main(video_path, description, account_cookies_pkl)
 
 
@@ -130,7 +130,8 @@ def validate_two_dimensional_array(data):
         return False
     print(repr(data))
     # 6) checken ob 6 klammern gibt
-    if str(data).count("[") == 3 and str(data).count("]") == 3 and repr(data).startswith("[[") and repr(data).endswith("]]"):
+    if str(data).count("[") == 3 and str(data).count("]") == 3 and repr(data).startswith("[[") and repr(data).endswith(
+            "]]"):
         return data
     else:
         return False
@@ -155,15 +156,32 @@ def get2d_arr(user_prompt, video_len, athmosphere):
     return script_prompt_arr
 
 
-def del_all_except_finished(user_dir):
+def del_all_except_finished_and_generatingfile(user_dir):
     for item in os.listdir(user_dir):
         item_path = os.path.join(user_dir, item)
         if os.path.isfile(item_path) and "FINISHED" not in item:
-            os.remove(item_path)
-            print(f"Gelöscht: {item_path}")
+            if not "generating" in item_path:
+                os.remove(item_path)
+                print(f"Gelöscht: {item_path}")
 
 
-# //TODO implement watermarc
+def gen_generation_file(full_user_dir):
+    with open(full_user_dir + "/generating.txt", "w") as file:
+        file.write("generating")
+        file.close()
+
+
+def write_genfile(full_user_dir, content):
+    with open(full_user_dir + "/generating.txt", "w") as file:
+        file.write(content)
+        file.close()
+
+
+def get_genfile_content(full_file_path):
+    with open(full_file_path, "r") as file:
+        return file.readline()
+
+
 def create_reel(model_used, user_prompt, video_len, user_id, athmosphere, visual_style,
                 music_style):
     print(model_used, user_prompt, video_len, user_id, athmosphere, visual_style, music_style)
@@ -175,13 +193,13 @@ def create_reel(model_used, user_prompt, video_len, user_id, athmosphere, visual
         UPSCALE = True
         fps = 30
         img_gen_model = "flux"
-        watermarc = "imgpath to watermark"
 
     user_dir = os.getcwd() + f"/generated_vids/{user_id}"
+    gen_generation_file(user_dir)
+
     if not os.path.exists(user_dir):
         os.makedirs(user_dir)
     output_path = pm(user_dir, f"FINISHED{uuid.uuid4().hex[:10]}", ".mp4")  # userId
-
 
     img_specs = f" - {visual_style}, high-detail textures, cinematic framing, {athmosphere}"
     script_prompt_arr = get2d_arr(user_prompt, video_len, athmosphere)
@@ -205,12 +223,13 @@ def create_reel(model_used, user_prompt, video_len, user_id, athmosphere, visual
     add_subtitles.add_subs_to_mp4(audio_path=pm(user_dir, "script", ".mp3"),
                                   video_path=pm(user_dir, "finishedWOsubs", ".mp4"),
                                   srt_path=pm(user_dir, "subtitles", ".srt"), output_path=output_path, plan=model_used)
-    del_all_except_finished(user_dir)
+    del_all_except_finished_and_generatingfile(user_dir)
+    write_genfile(user_dir, "success")
     print("SAVED IN" + output_path)
     return output_path
 
 
 if __name__ == '__main__':
-    create_reel("Tester", "Create a reel about motivation to get rich and be the best version yourself, just 5s ", "5", "2520", "motivation, inspiring",
+    create_reel("Tester", "Create a reel about motivation to get rich and be the best version yourself, just 5s ", "5",
+                "2520", "motivation, inspiring",
                 "realisitc", "")
-

@@ -25,7 +25,7 @@ def get_mp3_script_len(path):
 def gen_audio(script, path):
     # Generate speech and save it as an MP3
     attempts = 0
-    MAX_ATTEMPTS = 3
+    MAX_ATTEMPTS = 10
     while attempts < MAX_ATTEMPTS:
         try:
             response = cycled_api_key().text_to_speech.convert(

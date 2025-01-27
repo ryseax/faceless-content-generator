@@ -33,11 +33,11 @@ def create_image(prompt, dirname, filename, model="flux"):
     filename = filename + ".jpg"
     if model == "flux":
         img_byte_res = image_byte_response(prompt + " - image quality 720p")
-        while b"error" in img_byte_res:
+        while b"error" in img_byte_res and str(img_byte_res).count("\\") < 50:
             print(f"Error: {img_byte_res}")
             time.sleep(5)
             img_byte_res = image_byte_response(prompt + " - image quality 720p")
-        print(img_byte_res)
+        #print(img_byte_res)
         image = Image.open(io.BytesIO(img_byte_res))
         image.save(os.path.join(dirname, filename))
     else:
