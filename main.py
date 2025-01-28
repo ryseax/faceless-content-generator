@@ -195,11 +195,12 @@ def create_reel(model_used, user_prompt, video_len, user_id, athmosphere, visual
         img_gen_model = "flux"
 
     user_dir = os.getcwd() + f"/generated_vids/{user_id}"
-    gen_generation_file(user_dir)
 
     if not os.path.exists(user_dir):
         os.makedirs(user_dir)
+
     output_path = pm(user_dir, f"FINISHED{uuid.uuid4().hex[:10]}", ".mp4")  # userId
+    gen_generation_file(user_dir)
 
     img_specs = f" - {visual_style}, high-detail textures, cinematic framing, {athmosphere}"
     script_prompt_arr = get2d_arr(user_prompt, video_len, athmosphere)

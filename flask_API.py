@@ -112,18 +112,19 @@ def check_video_status():
         return jsonify({"error": "User ID is required"}), 400
 
     filepath = f"{get_folder_path_from_user(user_id)}/generating.txt"
-    if main.get_genfile_content(filepath) == "error":
-        return jsonify({"status": "error"}), 500
-    if main.get_genfile_content(filepath) == "generating":
-        return jsonify({"status": "generating"}), 200
-    if main.get_genfile_content(filepath) == "no video in pipeline":
-        return jsonify({"status": "no video in pipeline"}), 200
+    if os.path.exists(filepath):
+        if main.get_genfile_content(filepath) == "error":
+            return jsonify({"status": "error"}), 500
+        if main.get_genfile_content(filepath) == "generating":
+            return jsonify({"status": "generating"}), 200
+        if main.get_genfile_content(filepath) == "no video in pipeline":
+            return jsonify({"status": "no video in pipeline"}), 200
     return jsonify({"status": "success"}), 200
 
 
 @app.route('/generate-video', methods=['POST'])
 def generate_video():
-    MAX_RETRIES = 3  # Maximale Anzahl der Wiederholungen
+    MAX_RETRIES = 3  # Maximale Anzahl  der Wiederholungen
     attempt = 0  # Zähler für die Versuche
     while attempt < MAX_RETRIES:
         try:
