@@ -17,7 +17,6 @@ def get_headers():
 
 def image_byte_response(prompt):
     headers = get_headers()
-    print(headers)
     response = requests.post(KEYS.HF_API_URL, headers=headers, json={"inputs": prompt})
     return response.content
 

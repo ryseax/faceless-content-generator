@@ -67,7 +67,6 @@ def get_user_videos():
             generate_endpoint_url('serve_user_video', user_id=user_id, filename=file)
             for file in mp4_files
         ]
-        print(video_urls)
         return jsonify({"video_urls": list(reversed(video_urls))}), 200
 
     except Exception as e:
@@ -140,7 +139,6 @@ def generate_video():
             }
             video_request = VideoRequest(**data)
 
-            print(video_request)
             main.create_reel(
                 model_used=video_request.model_used,
                 user_prompt=video_request.user_prompt,

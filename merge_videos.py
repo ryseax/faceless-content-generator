@@ -27,7 +27,6 @@ def merge_videos_with_audio(file_list_path, audio_path, output_path):
         output_path (str): Path to save the merged output video.
     """
     # Concatenate video files
-    print(file_list_path)
     concat_command = [
         'ffmpeg',
         '-f', 'concat',

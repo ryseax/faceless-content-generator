@@ -100,7 +100,6 @@ def validate_two_dimensional_array(data):
     # Unterlisten gleich viele Einträge haben (z.B. gleich viele Szenen und Bildprompts)
     if len(data[0]) != len(data[1]):
         return False
-    print(repr(data))
     # 6) checken ob 6 klammern gibt
     if str(data).count("[") == 3 and str(data).count("]") == 3 and repr(data).startswith("[[") and repr(data).endswith(
             "]]"):
@@ -130,7 +129,7 @@ def del_all_except_finished_and_generatingfile(user_dir):
         if os.path.isfile(item_path) and "FINISHED" not in item:
             if not "generating" in item_path:
                 os.remove(item_path)
-                print(f"Gelöscht: {item_path}")
+                #print(f"Gelöscht: {item_path}")
 
 
 def gen_generation_file(full_user_dir):
