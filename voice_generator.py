@@ -4,7 +4,7 @@ from elevenlabs import ElevenLabs
 from itertools import cycle
 import KEYS
 
-API_KEYS = cycle(KEYS.ELEVENLABS)
+API_KEYS = cycle(KEYS.ELEVENLABS_API_KEYS)
 
 
 def cycled_api_key():

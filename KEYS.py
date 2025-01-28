@@ -1,14 +1,15 @@
 import numpy
-
-
 def shuffle(array): return numpy.random.permutation(array)
 
-
-HUGGINGFACE = ["PLACEHOLDER_API_KEY", "PLACEHOLDER_API_KEY"]
-ELEVENLABS = ["PLACEHOLDER_API_KEY",
-              "PLACEHOLDER_API_KEY",
-              "PLACEHOLDER_API_KEY",
-              "PLACEHOLDER_API_KEY"
-              ]
+HUGGINGFACE_API_KEYS = ["PLACEHOLDER_API_KEY", "PLACEHOLDER_API_KEY"]
+ELEVENLABS_API_KEYS = ["PLACEHOLDER_API_KEY",
+                       "PLACEHOLDER_API_KEY",
+                       "PLACEHOLDER_API_KEY",
+                       "PLACEHOLDER_API_KEY"
+                       ]
+OPEN_AI_API_KEY = "PLACEHOLDER_API_KEY"
 REPLICATE_API_TOKEN = "PLACEHOLDER_API_KEY"
+HF_API_URL = "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell"
+REPLICATE_API_URL = "https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions"
+
 DOMAIN = 'dedma.de'

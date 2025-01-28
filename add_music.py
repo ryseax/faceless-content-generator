@@ -2,7 +2,6 @@ import subprocess
 
 
 def add_background_music_ffmpeg(video_path, music_path, output_path, music_volume=0.2):
-    # FFmpeg-Befehl: Hintergrundmusik hinzufügen und Lautstärke anpassen
     command = [
         "ffmpeg",
         "-i", video_path,  # Input Video
@@ -17,10 +16,7 @@ def add_background_music_ffmpeg(video_path, music_path, output_path, music_volum
         "-shortest",  # Kürzeres Ende beibehalten
         output_path  # Ausgabe-Datei
     ]
-
-    # Führe den FFmpeg-Befehl aus
     subprocess.run(command, check=True)
-
 
 # Beispielaufruf
 if __name__ == "__main__":

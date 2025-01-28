@@ -1,20 +1,13 @@
 import io
 import time
-import random
 from itertools import cycle
-
 from PIL import Image
 import requests
 import os
-import replicate
 import KEYS
 
-# Liste der API-Schlüssel
-API_KEYS = KEYS.HUGGINGFACE
-
-# Zyklischer Iterator für API-Schlüssel
+API_KEYS = KEYS.HUGGINGFACE_API_KEYS
 api_key_cycle = cycle(API_KEYS)
-API_URL = "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell"
 
 
 def get_headers():
@@ -25,7 +18,7 @@ def get_headers():
 def image_byte_response(prompt):
     headers = get_headers()
     print(headers)
-    response = requests.post(API_URL, headers=headers, json={"inputs": prompt})
+    response = requests.post(KEYS.HF_API_URL, headers=headers, json={"inputs": prompt})
     return response.content
 
 
@@ -37,11 +30,11 @@ def create_image(prompt, dirname, filename, model="flux"):
             print(f"Error: {img_byte_res}")
             time.sleep(5)
             img_byte_res = image_byte_response(prompt + " - image quality 720p")
-        #print(img_byte_res)
+        # print(img_byte_res)
         image = Image.open(io.BytesIO(img_byte_res))
         image.save(os.path.join(dirname, filename))
     else:
-        url = "https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions"
+        url = KEYS.REPLICATE_API_URL
         headers = {
             "Authorization": f"Bearer {KEYS.REPLICATE_API_TOKEN}",
             "Content-Type": "application/json",

@@ -1,6 +1,8 @@
 import openai
 from openai import OpenAI
-openai.api_key = "PLACEHOLDER_API_KEY"
+import KEYS
+
+openai.api_key = KEYS.OPEN_AI_API_KEY
 client = OpenAI()
 
 
@@ -52,15 +54,4 @@ def get_gpt_twoDarr(prompt):
             }
         ]
     )
-    #    print(completion)
-    print(completion.choices[0].message.content)
     return completion.choices[0].message.content
-
-
-def splitdata(res_data):
-    split_data = res_data.split("\n\n")
-    script_data = split_data[0].replace("\n", "")
-    img_prompts = split_data[1]
-    script_arr = script_data.split(";;")
-    img_arr = img_prompts.split(";;")
-    return [script_arr, img_arr]
