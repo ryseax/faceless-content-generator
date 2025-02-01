@@ -7,4 +7,8 @@
 /data/logo.svg
 /data/plans.xlsx
 /data/todo.txt
+/redditstories/__pycache__
+/redditstories/generated_Rvids
+/redditstories/mcGameplay.mp4
+/redditstories/preview.html
 .python-version

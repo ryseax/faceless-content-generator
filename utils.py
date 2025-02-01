@@ -1,17 +1,25 @@
 import json
 import os.path
 import ast
+import re
+
 import gpt
 import voice_generator
 import os
 from PIL import Image
 import image_generator
 
+#import emoji
 
 # def instagram_upload(video_path, description, account_cookies_pkl):
 #    IG_Upload.main(video_path, description, account_cookies_pkl)
 
-
+def clean_text(text):
+    """Entfernt Zeilenumbrüche und Emojis aus einem String."""
+    text = text.replace("\n", " ").replace("\r", " ")  # Zeilenumbrüche entfernen
+    #text = emoji.replace_emoji(text, replace="")  # Emojis entfernen
+    text = re.sub(r'\s+', ' ', text).strip()  # Extra Leerzeichen entfernen
+    return text
 def get_raw_data():
     with open("data.json", "r", encoding="utf-8") as f:
         return json.load(f)
