@@ -1,4 +1,3 @@
-import os
 import time
 import traceback
 from flask import Flask, request, jsonify, send_from_directory, url_for
@@ -177,7 +176,7 @@ def generate_video():
                 visual_style=video_request.visual_style,  # optional
             )
             time.sleep(6)
-            utils.write_genfile(utils.get_folder_path_from_user(video_request.user_id), "no video in pipeline")
+            utils.write_genfile(utils.get_folder_path_from_user(video_request.user_id, video_type), "no video in pipeline")
             return "Success", 200  # Erfolgreich abgeschlossen, beenden
 
         except Exception as e:
@@ -231,7 +230,7 @@ def generate_reddit_video():
             utils.del_all_except_finished_and_generatingfile(utils.get_folder_path_from_user(reddit_request.user_id, video_type))
             print(f"Attempt {attempt} failed: {e}")
             if attempt == MAX_RETRIES:
-                utils.write_genfile(utils.get_folder_path_from_user(reddit_request.user_id), "error")
+                utils.write_genfile(utils.get_folder_path_from_user(reddit_request.user_id, video_type), "error")
                 return jsonify({"error": f"Failed after {MAX_RETRIES} attempts: {str(e)}"}), 500
 
 
