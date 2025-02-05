@@ -90,7 +90,7 @@ def get_user_videos():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route("/get-user-videos/<user_id>/<filename>")
+@app.route("/get-user-videos/<user_id>/<filename>/<video_type>")
 def serve_user_video(user_id, filename, video_type):
     try:
         folder_path = utils.get_folder_path_from_user(user_id, video_type)
