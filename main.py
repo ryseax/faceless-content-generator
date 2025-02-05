@@ -21,8 +21,8 @@ def create_reel(model_used, user_prompt, video_len, user_id, athmosphere, visual
         UPSCALE = False
         fps = 60
         img_gen_model = "flux"
-
-    user_dir = os.getcwd() + f"/generated_vids/{user_id}"
+    video_type = "reels"
+    user_dir = utils.data_dir + f"/generated_videos/{video_type}/{user_id}"
 
     if not os.path.exists(user_dir):
         os.makedirs(user_dir)

@@ -6,7 +6,22 @@ openai.api_key = KEYS.OPEN_AI_API_KEY
 client = OpenAI()
 
 
-def llm_prompt_builder(user_prompt, duration, athomsphere):
+def get_reddit_gpt_prompt(theme, length):
+    return f"""
+    I want you to create me fake reddit posts which are always having a good plot and catch the viewers attention immedeatily with the title and keep building interest in the post. 
+    The goal is it the the user completaly wants to read the whole story and does not want to stop bc it could be boring in the middle of it because there is a placeholder or something like this.
+    The post should be written as real as possible just as like a real reddit post from different subreddits.
+    The posts have to be eyecatching and the post should be about {length} seconds long if read out loud.
+    Firstly create a post about this topic: {theme}. Title and body should be written in first person!
+    The entire response must be strictly JSON array syntax: ["title", "body"], with no additional text or formatting outside the array brackets.
+    Final Output Format Example (MUST match this exact structure, no extras):
+
+    ["An Example Title", "This is the start of the post body..."]
+    Make sure the narrative feels realistic enough that it could pass as a genuine Reddit story.
+    """
+
+
+def get_reel_gpt_prompt(user_prompt, duration, athomsphere):
     return f"""
             I have a client who wants to create a viral Instagram reel. They enter their specifications into a prompt, and I want you to create a viral reelscript for my client based on their input.
             Write a highly engaging and psychologically optimized Instagram reel script. The script should include psychological techniques to keep the viewer watching and ensure the reel goes viral. It must be clean, without rigidly listing tips, and structured to hold the audience's attention throughout the entire video. The script should inspire viewers to share, like, comment, save, and—most importantly—watch the entire video until the end. The script must be exactly {duration}seconds long if i read it out loud.
@@ -43,7 +58,7 @@ def llm_prompt_builder(user_prompt, duration, athomsphere):
             """
 
 
-def get_gpt_twoDarr(prompt):
+def get_gpt_response(prompt):
     completion = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[

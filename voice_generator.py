@@ -1,49 +1,35 @@
 import os.path
-from mutagen.mp3 import MP3
-from elevenlabs import ElevenLabs
-from itertools import cycle
+import replicate
 import KEYS
+from pydub import AudioSegment
 
-API_KEYS = cycle(KEYS.ELEVENLABS_API_KEYS)
-
-
-def cycled_api_key():
-    return ElevenLabs(api_key=next(API_KEYS))
-
-
-def get_mp3_script_len(path):
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"The file does not exist in the directory {path}")
-    # Get the MP3 duration using mutagen
+def get_audio_length(file_path):
     try:
-        audio = MP3(path)
-        return audio.info.length  # Duration in seconds
+        audio = AudioSegment.from_file(file_path)
+        duration = len(audio) / 1000  # Millisekunden zu Sekunden
+        return duration
     except Exception as e:
-        raise ValueError(f"Could not read MP3 file: {e}")
+        print(e)
 
 
 def gen_audio(script, path):
-    # Generate speech and save it as an MP3
-    attempts = 0
-    MAX_ATTEMPTS = 10
-    while attempts < MAX_ATTEMPTS:
-        try:
-            response = cycled_api_key().text_to_speech.convert(
-                voice_id="yl2ZDV1MzN4HbQJbMihG",
-                model_id="eleven_multilingual_v2",
-                text=script
-            )
-
-            if response:
-                write_audio(path, response)
-                return
-        except Exception as e:
-            attempts += 1
-            print(e)
-
+    kokoro_model = "jaaari/kokoro-82m:f559560eb822dc509045f3921a1921234918b91739db4bf3daab2169b71c7a13"
+    # 1.am_echo für horrorstories
+    # 2 onyx für horrorstories 2
+    # 3 liam für andere tiktoks
+    body = {
+        "text": script,
+        "voice": "am_echo",
+        "speed": 1.15
+    }
+    client = replicate.Client(KEYS.REPLICATE_API_TOKEN)
+    output = client.run(
+        kokoro_model,
+        input=body
+    )
+    write_audio(path, output.read())
 
 def write_audio(path, response):
-    audio_content = b"".join(response)
     with open(path, "wb") as audio_file:
-        audio_file.write(audio_content)
+        audio_file.write(response)
         print(f"ScriptAudio saved as {path}")

@@ -7,16 +7,37 @@ import KEYS
 from flask_cors import CORS
 import main
 import utils
+import sys
+import os
+
+# Füge das Verzeichnis "redditstories" zum Import-Pfad hinzu
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "redditstories")))
+
+from redditstories import create_reddit_story  # Jetzt sollte es funktionieren
 
 
-class VideoRequest(BaseModel):
+class ReelParams(BaseModel):
     user_id: str
     model_used: str
     user_prompt: str
     video_len: str
+    video_type: str
     athmosphere: str = Field(default="")
     visual_style: str = Field(default="")
     music_style: str = Field(default="")
+
+
+class RedditParams(BaseModel):
+    user_id: str
+    bg_gameplay: str
+    video_len: str
+    preview_pic_name: str
+    video_type: str
+    reddit_post_url: str = Field(default="False")
+    topic: str = Field(default="")
+
+
+# userid, gameplay, redditpost/gptgenerated, name, theme, length
 
 
 app = Flask(__name__)
@@ -44,10 +65,11 @@ def get_user_videos():
 
         # Benutzerspezifische Ordnerpfade abrufen
         user_id = str(data.get("user_id"))  # Erwartet ein "user_id"-Key im JSON
+        video_type = str(data.get("video_type"))  # reddit_stories oder reels
         if not user_id:
             return jsonify({"error": "User ID is required"}), 400
 
-        folder_path = utils.get_folder_path_from_user(user_id)
+        folder_path = utils.get_folder_path_from_user(user_id, video_type)
 
         # Prüfen, ob der Ordner existiert
         if not os.path.exists(folder_path) or not os.path.isdir(folder_path):
@@ -64,7 +86,7 @@ def get_user_videos():
 
         # Generiere URLs für die Videos direkt aus der Route
         video_urls = [
-            generate_endpoint_url('serve_user_video', user_id=user_id, filename=file)
+            generate_endpoint_url('serve_user_video', user_id=user_id, filename=file, video_type=video_type)
             for file in mp4_files
         ]
         return jsonify({"video_urls": list(reversed(video_urls))}), 200
@@ -75,9 +97,9 @@ def get_user_videos():
 
 
 @app.route("/get-user-videos/<user_id>/<filename>")
-def serve_user_video(user_id, filename):
+def serve_user_video(user_id, filename, video_type):
     try:
-        folder_path = utils.get_folder_path_from_user(user_id)
+        folder_path = utils.get_folder_path_from_user(user_id, video_type)
         if not os.path.exists(folder_path):
             return jsonify({"error": "User folder does not exist"}), 404
 
@@ -101,10 +123,13 @@ def check_video_status():
         return jsonify({"error": "No JSON data received"}), 400
 
     user_id = str(data.get("user_id"))  # Erwartet ein "user_id"-Key im JSON
+    video_type = str(data.get("video_type"))  # reddit_stories oder reels
     if not user_id:
         return jsonify({"error": "User ID is required"}), 400
+    if not video_type:
+        return jsonify({"error": "video type is required"}), 400
 
-    filepath = f"{utils.get_folder_path_from_user(user_id)}/generating.txt"
+    filepath = f"{utils.get_folder_path_from_user(user_id, video_type)}/generating.txt"
     if os.path.exists(filepath):
         if utils.get_genfile_content(filepath) == "error":
             return jsonify({"status": "error"}), 500
@@ -137,8 +162,8 @@ def generate_video():
                 "visual_style": "realisitc",  # ""
                 "music_style": "lofi",  # ""
             }
-            video_request = VideoRequest(**data)
-
+            video_request = ReelParams(**data)
+            video_type = video_request.video_type
             main.create_reel(
                 model_used=video_request.model_used,
                 user_prompt=video_request.user_prompt,
@@ -155,11 +180,55 @@ def generate_video():
         except Exception as e:
             traceback.print_exc()
             attempt += 1  # Zähler erhöhen
-            utils.del_all_except_finished_and_generatingfile(utils.get_folder_path_from_user(video_request.user_id))
+            utils.del_all_except_finished_and_generatingfile(utils.get_folder_path_from_user(video_request.user_id, video_type))
             print(f"Attempt {attempt} failed: {e}")
             if attempt == MAX_RETRIES:
                 # Nach 5 Versuchen den Fehler zurückgeben
-                utils.write_genfile(utils.get_folder_path_from_user(video_request.user_id), "error")
+                utils.write_genfile(utils.get_folder_path_from_user(video_request.user_id, video_type), "error")
+                return jsonify({"error": f"Failed after {MAX_RETRIES} attempts: {str(e)}"}), 500
+
+
+@app.route('/generate-reddit-video', methods=['POST'])
+def generate_reddit_video():
+    MAX_RETRIES = 3  # Maximale Anzahl  der Wiederholungen
+    attempt = 0  # Zähler für die Versuche
+    while attempt < MAX_RETRIES:
+        try:
+            # JSON-Daten vom Client
+            data = request.json
+            if not data:
+                attempt = MAX_RETRIES
+                return jsonify({"error": "No JSON data received"}), 400
+            reddit_request = RedditParams(**data)
+            video_type = reddit_request.video_type
+            # example req
+            example_req = """
+                "user_id": "2520",
+                "name": "Testname",
+                "background_video": "minecraft",
+                "length": "20sec",
+                "reddit_post_url": "False",
+                "theme": "Horror story",
+            """
+            create_reddit_story.create_finished_video(
+                user_id=reddit_request.user_id,
+                name=reddit_request.preview_pic_name,
+                background_video=reddit_request.bg_gameplay,
+                length=reddit_request.video_len,
+                reddit_post_url=reddit_request.reddit_post_url,
+                theme=reddit_request.topic,
+            )
+            time.sleep(6)
+            utils.write_genfile(utils.get_folder_path_from_user(reddit_request.user_id, video_type), "no video in pipeline")
+            return "Success", 200  # Erfolgreich abgeschlossen, beenden
+
+        except Exception as e:
+            traceback.print_exc()
+            attempt += 1  # Zähler erhöhen
+            utils.del_all_except_finished_and_generatingfile(utils.get_folder_path_from_user(reddit_request.user_id, video_type))
+            print(f"Attempt {attempt} failed: {e}")
+            if attempt == MAX_RETRIES:
+                utils.write_genfile(utils.get_folder_path_from_user(reddit_request.user_id), "error")
                 return jsonify({"error": f"Failed after {MAX_RETRIES} attempts: {str(e)}"}), 500
 
 

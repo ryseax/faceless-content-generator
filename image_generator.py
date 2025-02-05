@@ -33,7 +33,7 @@ def create_image(prompt, dirname, filename, model="flux"):
         image = Image.open(io.BytesIO(img_byte_res))
         image.save(os.path.join(dirname, filename))
     else:
-        url = KEYS.REPLICATE_API_URL
+        url = KEYS.REPLICATE_FLUX_API_URL
         headers = {
             "Authorization": f"Bearer {KEYS.REPLICATE_API_TOKEN}",
             "Content-Type": "application/json",

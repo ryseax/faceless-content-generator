@@ -1,15 +1,17 @@
+import os
+
+import requests
 import json
 import os.path
 import ast
 import re
-
 import gpt
 import voice_generator
-import os
 from PIL import Image
 import image_generator
 
-#import emoji
+
+# import emoji
 
 # def instagram_upload(video_path, description, account_cookies_pkl):
 #    IG_Upload.main(video_path, description, account_cookies_pkl)
@@ -17,9 +19,11 @@ import image_generator
 def clean_text(text):
     """Entfernt Zeilenumbrüche und Emojis aus einem String."""
     text = text.replace("\n", " ").replace("\r", " ")  # Zeilenumbrüche entfernen
-    #text = emoji.replace_emoji(text, replace="")  # Emojis entfernen
+    # text = emoji.replace_emoji(text, replace="")  # Emojis entfernen
     text = re.sub(r'\s+', ' ', text).strip()  # Extra Leerzeichen entfernen
     return text
+
+
 def get_raw_data():
     with open("data.json", "r", encoding="utf-8") as f:
         return json.load(f)
@@ -121,12 +125,12 @@ def pm(dir, filename, ending):
 
 
 def get2d_arr(user_prompt, video_len, athmosphere):
-    build_script_prompt_arr = gpt.llm_prompt_builder(user_prompt, video_len,
-                                                     athmosphere)  # [0] = Script => [1] = IMGprompts
-    res = gpt.get_gpt_twoDarr(build_script_prompt_arr)
+    build_script_prompt_arr = gpt.get_reel_gpt_prompt(user_prompt, video_len,
+                                                      athmosphere)  # [0] = Script => [1] = IMGprompts
+    res = gpt.get_gpt_response(build_script_prompt_arr)
     script_prompt_arr = validate_two_dimensional_array(res)
     while not script_prompt_arr:
-        res = gpt.get_gpt_twoDarr(build_script_prompt_arr)
+        res = gpt.get_gpt_response(build_script_prompt_arr)
         script_prompt_arr = validate_two_dimensional_array(res)
     return script_prompt_arr
 
@@ -137,7 +141,7 @@ def del_all_except_finished_and_generatingfile(user_dir):
         if os.path.isfile(item_path) and "FINISHED" not in item:
             if not "generating" in item_path:
                 os.remove(item_path)
-                #print(f"Gelöscht: {item_path}")
+                # print(f"Gelöscht: {item_path}")
 
 
 def gen_generation_file(full_user_dir):
@@ -157,8 +161,8 @@ def get_genfile_content(full_file_path):
         return file.readline()
 
 
-def get_folder_path_from_user(user_id):
-    return os.getcwd() + f"/generated_vids/{user_id}"  # Relativer Pfad zu den Benutzerordnern
+def get_folder_path_from_user(user_id, video_type):
+    return get_data_dir() + f"/generated_videos/{video_type}/{user_id}"  # Relativer Pfad zu den Benutzerordnern
 
 
 def upscale_img(org_img_path, new_img_path):
@@ -186,3 +190,38 @@ def upscale_img(org_img_path, new_img_path):
     resized_image.save(new_img_path)
     print(f"Bild erfolgreich skaliert und gespeichert unter: {new_img_path}")
     os.remove(org_img_path)
+
+
+def remove_temp_files(user_dir):
+    remove_after_done = ["html.png", "temp1.mp4", "temp2.mp4", "subtitles.srt", "subtitles_new.srt",
+                         "subtitles.ass", "script.wav"]  # script.mp3
+    for i in remove_after_done:
+        os.remove(user_dir + i)
+
+
+def scrape_reddit_post(url):
+    if not url.endswith(".json"):
+        url += ".json"  # JSON-Daten abrufen
+    headers = {"User-Agent": "Mozilla/5.0"}
+    response = requests.get(url, headers=headers)
+
+    if response.status_code != 200:
+        print("Fehler beim Abrufen der Seite")
+        return None
+
+    data = response.json()
+    post = data[0]["data"]["children"][0]["data"]
+
+    title = post.get("title", "Kein Titel gefunden")
+    body = post.get("selftext", "Kein Body gefunden")
+
+    return [title, body]
+
+
+def get_data_dir():
+    if "redditstories" in os.getcwd():
+        return os.getcwd().replace("redditstories", "data").replace("\\", "/")
+    else:
+        return os.getcwd() + "/data".replace("\\", "/")
+
+data_dir = get_data_dir()

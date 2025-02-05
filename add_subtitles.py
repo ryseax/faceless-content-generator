@@ -17,7 +17,7 @@ def transcribe_to_srt(audio_path, srt_path, model_size="base"):
             end_time = timedelta(seconds=word.end)
 
             # Convert content to uppercase and remove punctuation
-            content = word.word.replace(",", "").replace(".", "")
+            content = word.word
 
             subtitle_entries.append(
                 srt.Subtitle(index=len(subtitle_entries) + 1, start=start_time, end=end_time, content=content)

@@ -100,18 +100,11 @@ def get_speech_duration(audio_path, target_text, model_size="base"):
 
 
 import os
-import matplotlib.font_manager as fm
-import pysubs2
-
-import os
-import matplotlib.font_manager as fm
-import pysubs2
-import os
 import pysubs2
 import matplotlib.font_manager as fm
-
+import create_reddit_story
 def get_default_style():
-    font_path = "C:/Users/YOUR_USERNAME/Desktop/main/Coding/IGautomation/redditstories/font/Poppins-Bold.ttf"
+    font_path = f"{create_reddit_story.data_dir}/subtitle_font_poppins_bold/Poppins-Bold.ttf"
     if not os.path.exists(font_path):
         return None
 
@@ -120,7 +113,7 @@ def get_default_style():
     style = pysubs2.SSAStyle()
     style.borderstyle = 1  # Standard-Outline (kein Hintergrund)
     style.fontname = font_name
-    style.fontsize = 32  # Größe laut rechter Spalte
+    style.fontsize = 33  # Größe laut rechter Spalte
     style.primarycolor = pysubs2.Color(255, 255, 255, 0)  # Weiß
     style.outlinecolor = pysubs2.Color(0, 0, 0, 0)  # Rot (Falls Schwarz gewünscht: (0, 0, 0, 255))
     style.outline = 0.75  # Dicke der Umrandung
