@@ -76,7 +76,7 @@ def gen_audio_script(script, path):
 
 
 def get_mp3_len(path):
-    return voice_generator.get_mp3_script_len(path)
+    return voice_generator.get_audio_length(path)
 
 
 def get_all_mp4_from(dir):
