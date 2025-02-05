@@ -20,7 +20,6 @@ def create_reel(model_used, user_prompt, video_len, user_id, athmosphere, visual
     if model_used == "Starter":
         UPSCALE = False
         fps = 60
-        img_gen_model = "flux"
     video_type = "reels"
     user_dir = utils.data_dir + f"/generated_videos/{video_type}/{user_id}"
 
