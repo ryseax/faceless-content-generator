@@ -162,7 +162,7 @@ def get_genfile_content(full_file_path):
 
 
 def get_folder_path_from_user(user_id, video_type):
-    return get_data_dir() + f"/generated_videos/{video_type}/{user_id}"  # Relativer Pfad zu den Benutzerordnern
+    return get_data_dir() + f"/generated_videos/{video_type}/{user_id}".replace("\\", "/")  # Relativer Pfad zu den Benutzerordnern
 
 
 def upscale_img(org_img_path, new_img_path):

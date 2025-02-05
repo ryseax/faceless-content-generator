@@ -36,12 +36,7 @@ class RedditParams(BaseModel):
     reddit_post_url: str = Field(default="False")
     topic: str = Field(default="")
 
-
-# userid, gameplay, redditpost/gptgenerated, name, theme, length
-
-
 app = Flask(__name__)
-
 CORS(app, resources={r"/*": {"origins": ["https://facelessai.studio", "https://bolt.new"]}})
 app.config['PREFERRED_URL_SCHEME'] = 'https'  # HTTPS erzwingen
 DOMAIN = KEYS.DOMAIN  # Deine Ngrok-Domain
@@ -129,15 +124,23 @@ def check_video_status():
     if not video_type:
         return jsonify({"error": "video type is required"}), 400
 
+
     filepath = f"{utils.get_folder_path_from_user(user_id, video_type)}/generating.txt"
-    if os.path.exists(filepath):
-        if utils.get_genfile_content(filepath) == "error":
+    if not os.path.exists(filepath):
+        return jsonify({"status": "file not found"}), 404
+    status = utils.get_genfile_content(filepath)
+
+    match status:
+        case "error":
             return jsonify({"status": "error"}), 500
-        if utils.get_genfile_content(filepath) == "generating":
+        case "generating":
             return jsonify({"status": "generating"}), 200
-        if utils.get_genfile_content(filepath) == "no video in pipeline":
+        case "no video in pipeline":
             return jsonify({"status": "no video in pipeline"}), 200
-    return jsonify({"status": "success"}), 200
+        case "success":
+            return jsonify({"status": "success"}), 200
+        case _:
+            return jsonify({"status": "unknown status"}), 400
 
 
 @app.route('/generate-video', methods=['POST'])
