@@ -4,10 +4,11 @@ import utils
 import merge_videos
 import img_to_vid
 import add_subtitles
+import voice_generator
 
 
 def create_reel(model_used, user_prompt, video_len, user_id, athmosphere, visual_style,
-                music_style):
+                music_style, voice_id="am_liam", voice_speed=1.1):
     print(model_used, user_prompt, video_len, user_id, athmosphere, visual_style, music_style)
     # DEFAULT VALUES
     fps = 60
@@ -38,7 +39,7 @@ def create_reel(model_used, user_prompt, video_len, user_id, athmosphere, visual
                              upscale=UPSCALE
                              )
 
-    utils.gen_audio_script(script=str(script_prompt_arr[0]), path=utils.pm(user_dir, "script", ".mp3"))
+    voice_generator.gen_audio(script=str(script_prompt_arr[0]), path=utils.pm(user_dir, "script", ".mp3"), voice_speed=voice_speed, voice=voice_id)
     mp3len = utils.get_mp3_len(path=utils.pm(user_dir, "script", ".mp3"))
 
     for index, img_prompt in enumerate(script_prompt_arr[1]):
@@ -61,13 +62,3 @@ def create_reel(model_used, user_prompt, video_len, user_id, athmosphere, visual
                                   srt_path=utils.pm(user_dir, "subtitles", ".srt"), output_path=output_path,
                                   plan=model_used
                                   )
-
-    utils.del_all_except_finished_and_generatingfile(user_dir)
-    utils.write_genfile(user_dir, "success")
-    print("SAVED IN" + output_path)
-
-
-if __name__ == '__main__':
-    create_reel("Tester", "Create a reel about motivation to get rich and be the best version yourself, just 5s ", "5",
-                "2520", "motivation, inspiring",
-                "realisitc", "")

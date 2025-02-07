@@ -12,15 +12,15 @@ def get_audio_length(file_path):
         print(e)
 
 
-def gen_audio(script, path):
+def gen_audio(script, path, voice, voice_speed):
     kokoro_model = "jaaari/kokoro-82m:f559560eb822dc509045f3921a1921234918b91739db4bf3daab2169b71c7a13"
     # 1.am_echo für horrorstories
     # 2 onyx für horrorstories 2
     # 3 liam für andere tiktoks
     body = {
         "text": script,
-        "voice": "am_echo",
-        "speed": 1.15
+        "voice": voice,
+        "speed": voice_speed
     }
     client = replicate.Client(KEYS.REPLICATE_API_TOKEN)
     output = client.run(

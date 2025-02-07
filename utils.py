@@ -1,4 +1,7 @@
 import os
+import random
+import subprocess
+import uuid
 
 import requests
 import json
@@ -69,10 +72,6 @@ def create_reel_images(image_prompt_arr, specs, model, dirname, upscale):
         if upscale:
             upscale_img(f"{dirname}/{index}.jpg", f"{dirname}/US{index}.jpg")
     return dirname
-
-
-def gen_audio_script(script, path):
-    voice_generator.gen_audio(script, path)
 
 
 def get_mp3_len(path):
@@ -223,5 +222,65 @@ def get_data_dir():
         return os.getcwd().replace("redditstories", "data").replace("\\", "/")
     else:
         return os.getcwd() + "/data".replace("\\", "/")
+
+def merge_reddit_story_files(user_dir, background_video, mp3path, ass_path, video_duration, preview_path, preview_duration):
+    file_count = sum(1 for entry in os.scandir(f"{data_dir}/background_videos/{background_video}/") if entry.is_file())
+    random_vid = random.randint(0, file_count)
+    ass_path = ass_path.replace("C:/", "C\\\\:/")
+    font_path = f"{data_dir}/subtitle_font_poppins_bold".replace("\\", "/").replace("C:/", "C\\\\:/")
+    background_video_path = f"{data_dir}/background_videos/{background_video}/{random_vid}.mp4".replace("\\", "/")
+
+    # Parameter
+    zoom_factor = 0.15  # End-Zoom: 1.0 → 1.2 (also +20%)
+    fps_overlay = 30  # Verwende hier 30 FPS (wie im ursprünglichen Command)
+    overlay_file = preview_path  # z. B. Pfad zu "img.jpg"
+
+    command = [  # Merge video with subtitles
+        "ffmpeg",
+        "-i", background_video_path,
+        "-vf", f"subtitles={ass_path}:fontsdir={font_path},crop=in_h*9/16:in_h,scale=-1:1080,setsar=1,fps=60",
+        "-t", str(video_duration),
+        "-an",
+        "-c:v", "libx264",
+        "-crf", "23",
+        "-preset", "medium",
+        "-y",
+        f"{user_dir}temp1.mp4"
+    ]
+    subprocess.run(command, check=True)
+    command = [
+        "ffmpeg",
+        "-i", f"{user_dir}temp1.mp4",
+        "-loop", "1",
+        "-t", str(preview_duration),
+        "-i", overlay_file,
+        "-filter_complex",
+        (
+            f"[1:v]setpts=PTS-STARTPTS,fps={fps_overlay}[ovl];[0:v][ovl]overlay=x=(main_w-overlay_w)/2:y=(main_h-overlay_h)/2:enable='between(t,0,{preview_duration})'"
+        ),
+        "-c:v", "libx264",
+        "-crf", "23",
+        "-pix_fmt", "yuv420p",
+        "-c:a", "aac",
+        "-b:a", "128k",
+        "-movflags", "faststart",
+        f"{user_dir}temp2.mp4"
+    ]
+    subprocess.run(command, check=True)
+
+    command = [
+        'ffmpeg',
+        '-i', f'{user_dir}temp2.mp4',
+        '-i', mp3path,
+        '-c:v', 'copy',
+        '-c:a', 'aac',
+        '-map', '0:v:0',  # 🎥 Video aus temp2.mp4 nehmen
+        '-map', '1:a:0',  # 🎵 Audio aus MP3 nehmen
+        '-shortest',  # ✂️ Falls das Audio länger ist, kürze es auf Video-Länge
+        '-y',
+        f"{user_dir}FINISHED{uuid.uuid4().hex[:10]}.mp4"
+    ]
+    subprocess.run(command, check=True)
+
 
 data_dir = get_data_dir()
