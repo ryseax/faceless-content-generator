@@ -10,7 +10,7 @@ import voice_generator
 data_dir = utils.data_dir
 
 
-def create_reddit_story(user_id, name, reddit_post_url, background_video, voice_id="am_liam", voice_speed=1, theme="", length="60s", ):
+def create_reddit_story(user_id, name, background_video, voice_id="am_liam", voice_speed=1, theme="", length="60s", ):
     video_type = "reddit_stories"
     user_dir = f"{data_dir}/generated_videos/{video_type}/{user_id}/".replace("\\", "/")
     if not os.path.exists(user_dir):
@@ -21,11 +21,8 @@ def create_reddit_story(user_id, name, reddit_post_url, background_video, voice_
     srt_path = f"{user_dir}subtitles.srt"
     ass_path = srt_path.replace(".srt", ".ass")
 
-    if reddit_post_url == "False":
-        arr = gpt.get_gpt_response(gpt.get_reddit_gpt_prompt(theme, length))
-        title, body = json.loads(arr)
-    else:
-        title, body = utils.scrape_reddit_post(reddit_post_url)
+    arr = gpt.get_gpt_response(gpt.get_reddit_gpt_prompt(theme, length))
+    title, body = json.loads(arr)
 
     body += " Follow for more daily reddit stories!"
     preview_filepath = html_to_png(user_dir,

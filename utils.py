@@ -198,25 +198,6 @@ def remove_temp_files(user_dir):
         os.remove(user_dir + i)
 
 
-def scrape_reddit_post(url):
-    if not url.endswith(".json"):
-        url += ".json"  # JSON-Daten abrufen
-    headers = {"User-Agent": "Mozilla/5.0"}
-    response = requests.get(url, headers=headers)
-
-    if not str(response.status_code).startswith("2"):
-        print("Fehler beim Abrufen der Seite")
-        return None
-
-    data = response.json()
-    post = data[0]["data"]["children"][0]["data"]
-
-    title = post.get("title", "Kein Titel gefunden")
-    body = post.get("selftext", "Kein Body gefunden")
-
-    return [title, body]
-
-
 def get_data_dir():
     if "redditstories" in os.getcwd():
         return os.getcwd().replace("redditstories", "data").replace("\\", "/")

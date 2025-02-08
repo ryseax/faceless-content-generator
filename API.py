@@ -33,8 +33,7 @@ class RedditParams(BaseModel):
     video_type: str
     voice_id: str
     voice_speed: float
-    reddit_post_url: str = Field(default="False")
-    topic: str = Field(default="")
+    topic: str
 
 
 app = Flask(__name__)
@@ -208,7 +207,6 @@ def generate_reddit_video():
             name=reddit_request.preview_pic_name,
             background_video=reddit_request.bg_gameplay,
             length=reddit_request.video_len,
-            reddit_post_url=reddit_request.reddit_post_url,
             theme=reddit_request.topic,
             voice_id=reddit_request.voice_id,
             voice_speed=reddit_request.voice_speed,
