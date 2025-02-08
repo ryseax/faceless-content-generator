@@ -204,7 +204,7 @@ def scrape_reddit_post(url):
     headers = {"User-Agent": "Mozilla/5.0"}
     response = requests.get(url, headers=headers)
 
-    if response.status_code != 200:
+    if not str(response.status_code).startswith("2"):
         print("Fehler beim Abrufen der Seite")
         return None
 
@@ -284,3 +284,6 @@ def merge_reddit_story_files(user_dir, background_video, mp3path, ass_path, vide
 
 
 data_dir = get_data_dir()
+if __name__ == '__main__':
+    print(scrape_reddit_post(
+        "https://www.reddit.com/r/Advice/comments/1hq4eut/my_gf_is_in_a_medically_induced_coma_and_i_am/"))
