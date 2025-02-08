@@ -19,12 +19,11 @@ class ReelParams(BaseModel):
     user_prompt: str
     video_len: str
     video_type: str
-    voice_id: str
-    voice_speed: float
+    voice_id: str = Field(default="am_liam")
+    voice_speed: float = Field(default=1.0)
     athmosphere: str = Field(default="")
     visual_style: str = Field(default="")
     music_style: str = Field(default="")
-
 
 class RedditParams(BaseModel):
     user_id: str
@@ -39,7 +38,7 @@ class RedditParams(BaseModel):
 
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": ["https://facelessai.studio", "https://bolt.new"]}})
+CORS(app, resources={r"/*": {"origins": ["https://facelessai.studio", "https://bolt.new", "*"]}})
 app.config['PREFERRED_URL_SCHEME'] = 'https'  # HTTPS erzwingen
 DOMAIN = KEYS.DOMAIN  # Deine Ngrok-Domain
 
@@ -91,6 +90,7 @@ def get_user_videos():
 
         folder_path = utils.get_folder_path_from_user(user_id, video_type)
         if not os.path.exists(folder_path) or not os.path.isdir(folder_path):
+            os.mkdir(folder_path)
             return jsonify({"error": "User folder does not exist"}), 404
 
         mp4_files = [
