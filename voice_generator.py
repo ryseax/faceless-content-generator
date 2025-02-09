@@ -20,7 +20,7 @@ def gen_audio(script, path, voice, voice_speed):
     body = {
         "text": script,
         "voice": voice,
-        "speed": voice_speed
+        "speed": float(voice_speed)
     }
     client = replicate.Client(KEYS.REPLICATE_API_TOKEN)
     output = client.run(
