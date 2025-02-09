@@ -262,12 +262,14 @@ def get_tts_mp3s():
         return error_response
     user_id = str(data.get("user_id"))
     folder_path = utils.get_folder_path_from_user(user_id, 'mp3_TTS')
-
+    if not os.path.exists(folder_path) or not os.path.isdir(folder_path):
+        os.makedirs(folder_path)
     mp3_files = [
         file for file in os.listdir(folder_path)
         if file.endswith(".mp3")
     ]
-    if not mp3_files:
+    print(mp3_files)
+    if len(mp3_files) == 0:
         return jsonify({"message": "No Mp3s found for this user"}), 200
 
     mp3_urls = [
