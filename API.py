@@ -268,7 +268,7 @@ def get_tts_mp3s():
         file for file in os.listdir(folder_path)
         if file.endswith(".mp3")
     ]
-    print(mp3_files)
+
     if len(mp3_files) == 0:
         return jsonify({"message": "No Mp3s found for this user"}), 200
 
