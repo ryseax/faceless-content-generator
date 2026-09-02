@@ -21,7 +21,7 @@ class VideoRequest(BaseModel):
 
 app = Flask(__name__)
 
-CORS(app, resources={r"/*": {"origins": ["https://facelessai.studio", "https://bolt.new"]}})
+CORS(app, resources={r"/*": {"origins": ["https://example.com"]}})
 app.config['PREFERRED_URL_SCHEME'] = 'https'  # HTTPS erzwingen
 DOMAIN = KEYS.DOMAIN  # Deine Ngrok-Domain
 
